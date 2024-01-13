@@ -30,8 +30,8 @@ def download_all_posts(target_username):
 
 if __name__ == "__main__":
     print("Pilih opsi:")
-    print("1. Download dari URL postingan")
-    print("2. Download semua postingan dari akun tertentu")
+    print(\n"1. Download dari URL postingan")
+    print("2. Download semua postingan dari akun tertentu\n")
     
     option = input("Masukkan nomor opsi (1/2): ")
 
