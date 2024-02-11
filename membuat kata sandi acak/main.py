@@ -11,7 +11,7 @@ huruf_kecil = False
 simbol = False
 angka = False
 
-if not args or sys.argv[1] == "--bantuan":
+if not args or args[0] == "--bantuan":
     print(f"""
 Penggunaan: python3 {sys.argv[0]} [PILIHAN]
 
@@ -26,8 +26,8 @@ Pilihan:
 --huruf-kecil     : Gunakan huruf kecil.
 --bantuan         : Menampilkan informasi bantuan.
 
-Contoh: python3 {} --panjang 12 --simbol --angka --huruf-besar --huruf-kecil
-""".format(sys.argv[0], sys.argv[0]))
+Contoh: python3 {sys.argv[0]} --panjang 12 --simbol --angka --huruf-besar --huruf-kecil
+""")
     sys.exit()
 
 i = 0
@@ -52,19 +52,19 @@ while i < len(args):
     elif arg == "--angka":
         angka = True
     else:
-        print("Error: Argumen tidak valid: {}".format(arg))
-        print("Ketik 'python3 {} --bantuan' untuk menampilkan informasi bantuan.".format(sys.argv[0]))
+        print(f"Error: Argumen tidak valid: {arg}")
+        print(f"Ketik 'python3 {sys.argv[0]} --bantuan' untuk menampilkan informasi bantuan.")
         sys.exit()
     i += 1
 
 if panjang is None:
-    print("Error: Mohon berikan panjang kata sandi.")
-    print("Ketik 'python3 {} --bantuan' untuk menampilkan informasi bantuan.".format(sys.argv[0]))
+    print(f"Error: Mohon berikan panjang kata sandi.")
+    print(f"Ketik 'python3 {sys.argv[0]} --bantuan' untuk menampilkan informasi bantuan.")
     sys.exit()
 
 if not any([huruf_besar, huruf_kecil, simbol, angka]):
-    print("Error: Anda perlu memilih setidaknya satu jenis karakter untuk kata sandi.")
-    print("Ketik 'python3 {} --bantuan' untuk menampilkan informasi bantuan.".format(sys.argv[0]))
+    print(f"Error: Anda perlu memilih setidaknya satu jenis karakter untuk kata sandi.")
+    print(f"Ketik 'python3 {sys.argv[0]} --bantuan' untuk menampilkan informasi bantuan.")
     sys.exit()
 
 karakter = ''
@@ -78,7 +78,7 @@ if angka:
     karakter += string.digits
 
 if not karakter:
-    print("Error: Anda perlu memilih setidaknya satu jenis karakter untuk kata sandi.")
+    print(f"Error: Anda perlu memilih setidaknya satu jenis karakter untuk kata sandi.")
     sys.exit()
 
 kata_sandi = ''.join(random.choice(karakter) for _ in range(panjang))
