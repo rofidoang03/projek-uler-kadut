@@ -8,9 +8,7 @@ import subprocess
 
 # Memeriksa apakah jumlah argumen yang diberikan sesuai
 if len(sys.argv) != 3:
-    print(f"""
-Penggunaan: python3 {sys.argv[0]} [file steghide] [file wordlist]
-""")
+    print(f"""Penggunaan: python3 {sys.argv[0]} [file steghide] [file wordlist]""")
     sys.exit(1)
 
 # Mengambil argumen dari baris perintah
