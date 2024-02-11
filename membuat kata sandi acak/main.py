@@ -12,8 +12,7 @@ simbol = False
 angka = False
 
 if not args or args[0] == "--bantuan":
-    print(f"""
-Penggunaan: python3 {sys.argv[0]} [PILIHAN]
+    print(f"""Penggunaan: python3 {sys.argv[0]} [PILIHAN]
 
 Program Python sederhana untuk membuat kata sandi acak.
 
@@ -26,8 +25,7 @@ Pilihan:
 --huruf-kecil     : Gunakan huruf kecil.
 --bantuan         : Menampilkan informasi bantuan.
 
-Contoh: python3 {sys.argv[0]} --panjang 12 --simbol --angka --huruf-besar --huruf-kecil
-""")
+Contoh: python3 {sys.argv[0]} --panjang 12 --simbol --angka --huruf-besar --huruf-kecil""")
     sys.exit()
 
 i = 0
